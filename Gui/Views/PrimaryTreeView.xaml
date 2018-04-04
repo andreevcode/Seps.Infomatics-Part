@@ -1,0 +1,323 @@
+﻿<UserControl x:Class="Seps.Infomatic.Gui.PrimaryTreeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:mySql="clr-namespace:Seps.Infomatic.MySql;assembly=Seps.Infomatic.MySql"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"      
+    xmlns:com="http://schemas.microsoft.com/winfx/2006/xaml/presentation, http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    x:Name="PrimaryTree"
+    xmlns:local="clr-namespace:Seps.Infomatic.Gui"
+    xmlns:gui="clr-namespace:Seps.Infomatic.Gui"         
+    mc:Ignorable="d" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    d:DesignHeight="100" 
+    d:DesignWidth="300">
+    
+    <UserControl.Resources>
+        <gui:PrimaryTreeVM x:Key="PrimaryTreeVM"/>
+        <Style TargetType="{x:Type TreeView}">
+            <Setter Property="Background" Value="{Binding ElementName=control, Path=Background}" />
+        </Style>
+        
+        <local:BindingProxy x:Key="proxy" ProxyData="{Binding substation}"/>
+        
+        <Style TargetType="TextBox">
+            <Style.Setters>
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="AliceBlue" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="DataContext" Value="{Binding}"/>
+            </Style.Setters>
+        </Style>
+
+        <!--<Separator />-->
+        <!--<MenuItem Header="Развернуть все"  ToolTip="Развернуть все дочерние узлы"      
+                      Command="{Binding Path=OpenAllCommand}" 
+                      CommandParameter="{Binding}"/>
+            <Separator />
+            <MenuItem Header="Свернуть все"  ToolTip="Свернуть все узлы, включая вложенные "      
+                      Command="{Binding Path=CloseAllCommand}" 
+                      CommandParameter="{Binding}"/>-->
+
+
+
+        <ContextMenu x:Key="ItemContext"  StaysOpen="true" >
+            <MenuItem Header="Добавить узел"  ToolTip="Добавить дочерний элемент дерева"      
+                      Command="{Binding Source={StaticResource PrimaryTreeVM}, Path=AddCommand}"
+                      CommandParameter="{Binding}"/>
+            <Separator />
+            <MenuItem Background="LightPink" Header="Удалить" ToolTip="Удалить узел из дерева" 
+                      Command="{Binding Source={StaticResource PrimaryTreeVM}, Path=DeleteCommand}"
+                      CommandParameter="{Binding}"/>
+        </ContextMenu>
+
+
+        <ContextMenu x:Key="ItemContext2"  StaysOpen="true" >
+            <MenuItem Background="LightPink" Header="Удалить" ToolTip="Удалить узел из дерева" 
+                      Command="{Binding Source={StaticResource PrimaryTreeVM}, Path=DeleteCommand}"
+                      CommandParameter="{Binding}"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="TreeContext"  StaysOpen="true">
+            <MenuItem Header="Добавить ПС" ToolTip="Добавить новую подстанцию" 
+                      Command="{Binding Source={StaticResource PrimaryTreeVM}, Path=AddSSCommand}"
+                      CommandParameter="{Binding}"
+                      >
+                <!--<MenuItem.Style>
+                    <Style TargetType="{x:Type MenuItem}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding PlacementTarget}" Value="TreeView">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </MenuItem.Style>-->
+            </MenuItem>
+        </ContextMenu>
+        
+        <DataTemplate x:Key="union_1_templ">
+            <StackPanel Orientation="Horizontal" ContextMenu="{StaticResource ItemContext2}">
+                <Border BorderThickness="0" Margin="-1,0,0,0" Style="{StaticResource FocusStyle}" Padding="0,0,0,0">
+                    <Image Height="16" Width="16" SnapsToDevicePixels="True" Stretch="None"
+                       Source="pack://application:,,,/Seps.Graphics;component/Resources/selfmade/function16.png"/>
+                </Border>          
+                <TextBlock Margin="0,0,0,0" Padding="1,1,0,0"
+                    Text="{Binding name,Mode=TwoWay }" MinWidth="150"
+                            Style="{StaticResource TextBlockFocusStyle_NotEdit}">
+                    <!--<TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Foreground" Value="#b87333"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsReadOnly, RelativeSource=
+                                            {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                            Path=IsSelected}" Value="True">
+                                    <Setter Property="Background" Value="{Binding RelativeSource=
+                                            {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                            Path=Background}"/>
+                                    <Setter Property="Foreground" Value="#eedc82"/>
+                                </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsReadOnly, RelativeSource=
+                                            {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                            Path=IsSelected}" Value="true"/>
+                                        <Condition Binding="{Binding IsReadOnly, RelativeSource=
+                                            {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                            Path=IsSelectionActive}" Value="false"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Foreground" Value="#b87333"/>
+                                </MultiDataTrigger>            
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>-->  
+                </TextBlock>
+                <Border BorderThickness="0" Margin="0" Padding="3,0,3,0">
+                    <Border.Style>
+                        <Style TargetType="{x:Type Border}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsReadOnly, RelativeSource={RelativeSource FindAncestor, 
+                                        AncestorType={x:Type TreeViewItem}}, Path=IsSelected}" Value="True">
+                                    <Setter Property="Background" Value="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeView}},Path=Background}"/>
+                                </DataTrigger>
+
+                                <DataTrigger Binding="{Binding IsReadOnly, Path=terminalName}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Image Height="16" Width="16" SnapsToDevicePixels="True" Stretch="None"
+                       Source="pack://application:,,,/Seps.Graphics;component/Resources/selfmade/terminal16.png"/>   
+                </Border>
+                <TextBlock Margin="0,0,0,0"  x:Name="xdf" 
+                    Text="{Binding terminalName,Mode=TwoWay }">
+                    <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Background" Value="LightGray"/>
+                        <Setter Property="Foreground" Value="#b87333"/>
+                        <Setter Property="Padding" Value="2,1,1,0"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=IsSelected}" Value="True">
+                                <Setter Property="Foreground" Value="#eedc82"/>
+                                <Setter Property="Background" Value="#787f88"/>
+                            </DataTrigger>
+                            
+                            <DataTrigger Binding="{Binding IsReadOnly, Path=terminalName}" Value="{x:Null}">
+                                <Setter Property="Padding" Value="0"/>
+                            </DataTrigger>
+                                                        
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=IsSelected}" Value="true"/>
+                                    <Condition Binding="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=IsSelectionActive}" Value="false"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Foreground" Value="#b87333"/>
+                                <Setter Property="Background" Value="#eadbb8"/>  
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </DataTemplate>
+        
+        <HierarchicalDataTemplate x:Key="equip_templ"
+                                  ItemsSource="{Binding equip2union_1}"
+                                  ItemTemplate="{StaticResource union_1_templ}">
+            <StackPanel Orientation="Horizontal" ContextMenu="{StaticResource ItemContext2}" AllowDrop="True"
+                        Drop="OnDrop">
+                <Border BorderThickness="0" Margin="-1,0,0,0" Style="{StaticResource FocusStyle}" Padding="0,0,2,0">
+                    <Image Height="16" Width="16" SnapsToDevicePixels="True" Stretch="None"
+                       Source="pack://application:,,,/Seps.Graphics;component/Resources/selfmade/equipment16.png"/>
+                </Border>
+
+                <gui:EditableTextBlock Text="{Binding proj_name, Mode=TwoWay}" MinWidth="70" 
+                          Margin="2,0,0,0" Padding="1,1,1,0"
+                          IsInEditMode="{Binding Edit, Mode=TwoWay}"                        
+                          >
+                </gui:EditableTextBlock>
+                <TextBlock Background="White" Text=" - " Foreground="#b87333" Padding="0,1,0,0"/>  
+                <gui:EditableTextBlock Text="{Binding disp_name, Mode=TwoWay}"  
+                                IsInEditMode="{Binding Edit, Mode=TwoWay}"  Margin="0,0,0,0" Padding="2,1,1,0">
+                    <gui:EditableTextBlock.Style>
+                        <Style TargetType="{x:Type gui:EditableTextBlock}">
+                            <Setter Property="Background" Value="LightGray"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=IsSelected}" Value="True">
+                                    <!--<Setter Property="Background" Value="{Binding RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=Background}"/>-->
+                                    <Setter Property="Background" Value="#787f88"/>
+                                    <Setter Property="Foreground" Value="{Binding RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=Foreground}"/>
+                                </DataTrigger>
+
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=IsSelected}" Value="true"/>
+                                        <Condition Binding="{Binding IsReadOnly, RelativeSource=
+                                        {RelativeSource FindAncestor, AncestorType={x:Type TreeViewItem}}, 
+                                        Path=IsSelectionActive}" Value="false"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Background" Value="#eadbb8"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </gui:EditableTextBlock.Style>
+                </gui:EditableTextBlock>
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        
+        <HierarchicalDataTemplate x:Key="grequip_templ"
+                                  ItemsSource="{Binding grequip2equip}"
+                                  ItemTemplate="{StaticResource equip_templ}"  >
+            <StackPanel Orientation="Horizontal" ContextMenu="{StaticResource ItemContext}">
+                <Border Margin="-1,0,0,0" Style="{StaticResource FocusStyle}" Padding="0,0,3,0">
+                    <Image Height="16" Width="16" SnapsToDevicePixels="True" Stretch="None"
+                       Source="pack://application:,,,/Seps.Graphics;component/Resources/selfmade/grequipment16.png"/>
+                </Border>
+
+                <gui:EditableTextBlock Text="{Binding name, Mode=TwoWay}" 
+                          Margin="2,0,0,0" Padding="1,1,1,0"
+                          IsInEditMode="{Binding Edit, Mode=TwoWay}" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+                
+        <HierarchicalDataTemplate x:Key="voltage_templ" 
+                                  ItemsSource="{Binding volt2grequip}"
+                                  ItemTemplate="{StaticResource grequip_templ}">
+            <StackPanel Orientation="Horizontal" ContextMenu="{StaticResource ItemContext}">
+                <Border Margin="-1,0,0,0" Style="{StaticResource FocusStyle}" Padding="0,0,2,0">
+                    <Image Height="16" Width="16" SnapsToDevicePixels="True" Stretch="None"
+                       Source="pack://application:,,,/Seps.Graphics;component/Resources/selfmade/voltage16.png"/>
+                </Border>
+
+                <gui:EditableTextBlock Text="{Binding class, Mode=TwoWay}"
+                          Margin="2,0,0,0" Padding="1,1,1,0"
+                          IsInEditMode="{Binding Edit, Mode=TwoWay}" />
+            </StackPanel>            
+        </HierarchicalDataTemplate>
+              
+        <HierarchicalDataTemplate x:Key="substation_templ" 
+                                  ItemsSource="{Binding subst2volt}"
+                                  ItemTemplate="{StaticResource voltage_templ}"
+                                  >
+            <StackPanel Orientation="Horizontal" ContextMenu="{StaticResource ItemContext}" >
+                <Border Margin="-1,0,0,0" Style="{StaticResource FocusStyle}" Padding="0,0,2,0">
+                    <Image Height="16" Width="16" SnapsToDevicePixels="True" Stretch="None"
+                       Source="pack://application:,,,/Seps.Graphics;component/Resources/selfmade/substation16.png"/>
+                </Border>
+
+                <gui:EditableTextBlock Text="{Binding name, Mode=TwoWay}"
+                              Margin="2,1,0,0" Padding="1,1,1,0"
+                              IsInEditMode="{Binding Edit, Mode=TwoWay}" 
+                                      />                                       
+            </StackPanel>
+        </HierarchicalDataTemplate>
+    </UserControl.Resources>
+
+    <!--Tag="{Binding Path=TreeVItoExpand, 
+                  Mode=OneWayToSource}"-->
+
+    <DockPanel Margin="0,0,0,0" DataContext="{StaticResource PrimaryTreeVM}" x:Name="dock">
+        <DockPanel.CommandBindings>
+            <CommandBinding Command="{x:Static ApplicationCommands.Save}"
+                        CanExecute="SaveCommand_CanExecute"
+                        Executed="SaveCommand_Executed">
+            </CommandBinding>
+        </DockPanel.CommandBindings>
+        <StackPanel DockPanel.Dock="Top" Height="20" Style="{DynamicResource PrimaryTreeHeaderStyle}" 
+                    Orientation="Horizontal">
+            <Label FontWeight="bold" >Технологическое дерево</Label>
+            <!--<ToggleButton x:Name="SubButton" Style="{DynamicResource ToggleButtonStyle1}" Width="20" 
+                          Click="ToggleButton_Click" >1</ToggleButton>
+            <ToggleButton x:Name="VoltButton" Style="{DynamicResource ToggleButtonStyle1}" Width="20"  
+                          Click="ToggleButton_Click" >2</ToggleButton>
+            <ToggleButton x:Name="GreqButton" Style="{DynamicResource ToggleButtonStyle1}" Width="20"  
+                          Click="ToggleButton_Click" >3</ToggleButton>
+            <ToggleButton x:Name="EqButton" Style="{DynamicResource ToggleButtonStyle1}" Width="20"                                    
+                          Click="ToggleButton_Click" >4</ToggleButton>-->
+
+            <!--<ToggleButton x:Name="EqButton" Style="{DynamicResource ToggleButtonStyle1}" Width="20"                                    
+                          Click="ToggleButton_Click" Command="{Binding Path=UpdateCommand}">4</ToggleButton>-->
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Bottom" Style="{DynamicResource ButtonPanelTemplate}" >
+            <Button Style="{DynamicResource SaveButtonStyle}" />
+            <Button Style="{DynamicResource UpdateButtonStyle}"/>
+        </StackPanel>
+        <gui:SepsTreeView  x:Name="treeView1"  BorderThickness="0,1,0,1" Padding="1,2,0,0"  
+                DragOver="OnDragOver"
+                DragEnter="OnDragEnter"
+                DataContext="{Binding Path=TreeData}" 
+                ItemsSource="{Binding substation}"
+                ItemTemplate="{StaticResource substation_templ}" 
+                ContextMenu="{StaticResource TreeContext}"
+                TreeViewItem.Selected="TreeViewItemSelected" 
+                ScrollViewer.ScrollChanged="RouteUpdateLines"
+                IsAllowDragOne="{Binding  Path=IsAllowDragOne,RelativeSource={RelativeSource Mode=FindAncestor,
+                AncestorType={x:Type UserControl}}}"
+                IsAllowDragTwo="{Binding  Path=IsAllowDragTwo,RelativeSource={RelativeSource Mode=FindAncestor,
+                AncestorType={x:Type UserControl}}}"
+                IsAllowDragThree="{Binding  Path=IsAllowDragThree,RelativeSource={RelativeSource Mode=FindAncestor,
+                AncestorType={x:Type UserControl}}}"
+                IsAllowDragFour="{Binding  Path=IsAllowDragFour,RelativeSource={RelativeSource Mode=FindAncestor,
+                AncestorType={x:Type UserControl}}}"
+                IsAllowDragFive="{Binding  Path=IsAllowDragFive,RelativeSource={RelativeSource Mode=FindAncestor,
+                AncestorType={x:Type UserControl}}}"
+                >
+        </gui:SepsTreeView>
+        <!--IsEnabled="{Binding Source={StaticResource TreeEquipVM}, Path=IsBusy}"-->
+    </DockPanel>   
+   </UserControl>

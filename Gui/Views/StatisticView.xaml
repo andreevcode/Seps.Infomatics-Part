@@ -1,0 +1,319 @@
+﻿<UserControl x:Class="Seps.Infomatic.Gui.StatisticView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mysql="clr-namespace:Seps.Infomatic.MySql;assembly=Seps.Infomatic.MySql"
+    xmlns:gui="clr-namespace:Seps.Infomatic.Gui"   
+    xmlns:charts="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"       
+    x:Name="Statistic" 
+         
+    mc:Ignorable="d" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    d:DesignHeight="600" 
+    d:DesignWidth="650"
+             >
+    <UserControl.Resources>
+        <gui:StatisticVM x:Key="StatisticVM"/>     
+    </UserControl.Resources>
+    
+    <Grid x:Name="Grid1">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="250*" MinHeight="250"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="250*" MinHeight="250"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250*" MinWidth="200"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="250*" MinWidth="200"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="250*" MinWidth="200"/>
+        </Grid.ColumnDefinitions>
+       
+        <GridSplitter Grid.Column="1" Grid.RowSpan="3" VerticalContentAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        <GridSplitter Grid.Column="3" Grid.RowSpan="3" VerticalContentAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        <GridSplitter Grid.Row="1" Grid.ColumnSpan="5" VerticalContentAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+        <!--Статистика сигналов по типам:-->
+        <Grid Grid.Row="0" Grid.Column="0" DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatSignal}" 
+                Background="{DynamicResource Window_BackgroundBrush_Base}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="150*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+                
+            <Border Grid.Row="0"  BorderThickness="0,1,1,1">
+                <StackPanel Orientation="Horizontal" Style="{DynamicResource BaseBackgroundGradientStyle}">
+                    <Label  FontWeight="bold">Сигналы по типам</Label>
+                    <Label Margin="10,0,0,0" FontWeight="bold" Foreground="Green">Общее кол-во:</Label>
+                    <Label  FontWeight="bold" Foreground="Green" 
+                            Content="{Binding Source={StaticResource StatisticVM}, Path=Total}" />
+                </StackPanel>
+            </Border>
+            
+            <gui:SepsDataGrid  Grid.Row="1" BorderThickness="0,0,1,1"  x:Name="StatisticAllSignal" 
+            	CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                ItemsSource="{Binding DataTableSignal}" AutoGenerateColumns="False">
+                <gui:SepsDataGrid.Columns>
+                    <DataGridTextColumn Width="100*" MinWidth="100" IsReadOnly="True"  
+                                        Header="Тип сигнала" Binding="{Binding Type}"/>
+                    <DataGridTextColumn Width="80*" MinWidth="80" IsReadOnly="True" 
+                                        Header="Кол-во" Binding="{Binding Count}"/>
+                </gui:SepsDataGrid.Columns>
+            </gui:SepsDataGrid>
+
+            <Border Grid.Row="2" BorderThickness="0,0,1,1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                                HorizontalScrollBarVisibility="Auto">
+                    <charts:Chart Style="{StaticResource ChartWithNoGaps}" Name="AllSignal" Margin="-1,0,0,-1"
+                            DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatSignal}" 
+                            BorderThickness="0">
+                        <!--BorderBrush="{DynamicResource TabItem_BorderBrush_Selected}" -->
+                        <charts:PieSeries   DependentValueBinding="{Binding Count}"  Name="StatPSeries"
+                            IndependentValueBinding="{Binding Type}"
+                            ItemsSource="{Binding DataTableSignal}">
+                        </charts:PieSeries>
+                    </charts:Chart>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Row="3" BorderThickness="0,0,1,1">
+                <StackPanel Style="{DynamicResource ButtonPanelTemplate}">
+                    <Button Style="{DynamicResource UpdateButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!--Статистика терминалов по выпуску:-->
+        <Grid Grid.Row="0" Grid.Column="2" 
+                   DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatTerminal}"
+                   Background="{DynamicResource Window_BackgroundBrush_Base}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="150*" />
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"  BorderThickness="1,1,1,1">
+                <StackPanel Orientation="Horizontal" Style="{DynamicResource BaseBackgroundGradientStyle}">
+                    <Label  FontWeight="bold">Терминалы по статусу выпуска    </Label>
+                    <Label Margin="10,0,0,0" FontWeight="bold" Foreground="Green">Общее кол-во:</Label>
+                    <Label  FontWeight="bold" Foreground="Green" 
+                            Content="{Binding Source={StaticResource StatisticVM}, Path=TotalTerminal}" />
+                </StackPanel>
+            </Border>
+
+            <gui:SepsDataGrid Grid.Row="1" x:Name="StatisticTerminal" CanUserAddRows="False" 
+            	CanUserDeleteRows="False" BorderThickness="1,0,1,1" IsReadOnly="True"
+                    ItemsSource="{Binding DataTableSignal}" AutoGenerateColumns="False" >
+                <gui:SepsDataGrid.Columns>
+                    <DataGridTextColumn   Width="100*" IsReadOnly='True' Header="Статус" Binding="{Binding Type}"/>
+                    <DataGridTextColumn   Width="80" IsReadOnly='True' Header="Кол-во" Binding="{Binding Count}"/>
+                </gui:SepsDataGrid.Columns>
+            </gui:SepsDataGrid>
+
+            <Border Grid.Row="2" BorderThickness="1,0,1,1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <charts:Chart  Style="{StaticResource ChartWithNoGaps}"
+                                DataContext="{Binding Source={StaticResource StatisticVM}, 
+                                Path=ConStatTerminal}" Name="AllTerminal" 
+                                Margin="-1,0,0,-1"
+                                BorderThickness="0">
+                        <!--BorderBrush="{DynamicResource TabItem_BorderBrush_Selected}" -->
+                        <charts:PieSeries DependentValueBinding="{Binding Count}"  Name="TerminalPSeries"
+                            IndependentValueBinding="{Binding Type}"
+                            ItemsSource="{Binding DataTableSignal}">
+                        </charts:PieSeries>
+                    </charts:Chart>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Row="3" BorderThickness="1,0,1,1">
+                <StackPanel Style="{DynamicResource ButtonPanelTemplate}">
+                    <Button Style="{DynamicResource UpdateButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!--Сигналы по протоколам:-->
+        <Grid Grid.Row="0" Grid.Column="4" Background="{DynamicResource Window_BackgroundBrush_Base}"
+                 DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatProtocol}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="150*" />
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"  BorderThickness="1,1,0,1">
+                <StackPanel Orientation="Horizontal" Style="{DynamicResource BaseBackgroundGradientStyle}">
+                    <Label  FontWeight="bold">Сигналы по протоколам</Label>
+                </StackPanel>
+            </Border>
+
+            <gui:SepsDataGrid Grid.Row="1" x:Name="StatisticProtocol"
+            	CanUserAddRows="False" CanUserDeleteRows="False" BorderThickness="1,0,0,1" IsReadOnly="True"
+                    ItemsSource="{Binding DataTableSignal}" AutoGenerateColumns="False" >
+                <gui:SepsDataGrid.Columns>
+                    <DataGridTextColumn   Width="100*" MinWidth="100" IsReadOnly='True' 
+                                          Header="Протокол" Binding="{Binding Type}"/>
+                    <DataGridTextColumn   Width="80*" MinWidth="80" IsReadOnly='True' 
+                                          Header="Кол-во" Binding="{Binding Count}"/>
+                </gui:SepsDataGrid.Columns>
+            </gui:SepsDataGrid>
+
+            <Border Grid.Row="2" BorderThickness="1,0,0,1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <charts:Chart Style="{StaticResource ChartWithNoGaps}"
+                                  DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatProtocol}"
+                                  Name="Protocol"  Margin="-1,0,0,-1"
+                                  BorderBrush="{DynamicResource TabItem_BorderBrush_Selected}">
+                        <charts:PieSeries    
+                            DependentValueBinding="{Binding Count}"  Name="ProtocolPSeris"
+                            IndependentValueBinding="{Binding Type}"
+                            ItemsSource="{Binding DataTableSignal}">
+                        </charts:PieSeries>
+                    </charts:Chart>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Row="3" BorderThickness="1,0,0,1">
+                <StackPanel Style="{DynamicResource ButtonPanelTemplate}">
+                    <Button Style="{DynamicResource UpdateButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!--Сигналы в системах :-->
+        <Grid Grid.Row="2" Grid.Column="0" Background="{DynamicResource Window_BackgroundBrush_Base}"
+                 DataContext="{Binding Source={StaticResource StatisticVM}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"  BorderThickness="0,1,1,1">
+                <StackPanel Orientation="Horizontal" Style="{DynamicResource BaseBackgroundGradientStyle}">
+                    <Label  FontWeight="bold">Типы сигналов по системам</Label>
+                </StackPanel>
+            </Border>
+
+            <gui:SepsDataGrid Grid.Row="1" x:Name="StatisticSystems" BorderThickness="0,0,1,1" 
+                     ItemsSource="{Binding Path=DataTableSystem}"
+            	CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+                    AutoGenerateColumns="True" >
+                <!--<gui:SepsDataGrid.Columns>
+                    <DataGridTextColumn   Width="100*" MinWidth="100" IsReadOnly='True' 
+                                          Header="Протокол" Binding="{Binding Type}"/>
+                    <DataGridTextColumn   Width="80*" MinWidth="80" IsReadOnly='True' 
+                                          Header="Кол-во" Binding="{Binding Count}"/>
+                </gui:SepsDataGrid.Columns>-->
+            </gui:SepsDataGrid>
+           
+            <Border Grid.Row="2" BorderThickness="0,0,1,0">
+                <StackPanel Style="{DynamicResource ButtonPanelTemplate}">
+                    <Button Style="{DynamicResource UpdateButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+
+        <!--Сигналы в системах:-->
+        <Grid Grid.Row="2" Grid.Column="2" Background="{DynamicResource Window_BackgroundBrush_Base}"
+                   DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatAllSystems}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="150*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"  BorderThickness="1,1,1,1">
+                <StackPanel Orientation="Horizontal" Style="{DynamicResource BaseBackgroundGradientStyle}">
+                    <Label  FontWeight="bold">Cигналы по системам</Label>
+                </StackPanel>
+            </Border>
+
+            <gui:SepsDataGrid Grid.Row="1" BorderThickness="1,0,1,1" 
+                    ItemsSource="{Binding DataTableSignal}" AutoGenerateColumns="False" 
+				CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True"
+				>
+                <gui:SepsDataGrid.Columns>
+                    <DataGridTextColumn   Width="100*"  MinWidth="100" IsReadOnly='True' 
+                                          Header="Системы" Binding="{Binding Type}"/>
+                    <DataGridTextColumn   Width="80*" MinWidth="80"  IsReadOnly='True' 
+                                          Header="Кол-во" Binding="{Binding Count}"/>
+                </gui:SepsDataGrid.Columns>
+            </gui:SepsDataGrid>
+
+            <Border Grid.Row="2" BorderThickness="1,0,1,1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <charts:Chart  Style="{StaticResource ChartWithNoGaps}"
+                                   DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatAllSystems}"
+                            Name="Systems" Margin="-1,0,0,-1"
+                            BorderBrush="{DynamicResource TabItem_BorderBrush_Selected}" >
+                        <charts:PieSeries    DependentValueBinding="{Binding Count}"   Name="AllSystemsPSeris"
+                            IndependentValueBinding="{Binding Type}"
+                            ItemsSource="{Binding DataTableSignal}">
+                        </charts:PieSeries>
+                    </charts:Chart>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Row="3" BorderThickness="1,0,1,0">
+                <StackPanel Style="{DynamicResource ButtonPanelTemplate}">
+                    <Button Style="{DynamicResource UpdateButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!--Сигналы в томах:-->
+        <Grid Grid.Row="2" Grid.Column="4" Background="{DynamicResource Window_BackgroundBrush_Base}"
+                   DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatTom}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="150*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"  BorderThickness="1,1,1,1">
+                <StackPanel Orientation="Horizontal" Style="{DynamicResource BaseBackgroundGradientStyle}">
+                    <Label  FontWeight="bold">Сигналы по томам</Label>
+                </StackPanel>
+            </Border>
+
+            <gui:SepsDataGrid Grid.Row="1" x:Name="StatisticTom"  BorderThickness="1,0,1,1" 
+                    ItemsSource="{Binding DataTableSignal}" AutoGenerateColumns="False" 
+				CanUserAddRows="False" CanUserDeleteRows="False"  IsReadOnly="True">
+                <gui:SepsDataGrid.Columns>
+                    <DataGridTextColumn   Width="100*" MinWidth="100" IsReadOnly='True' 
+                                          Header="Шифр" Binding="{Binding Type}"/>
+                    <DataGridTextColumn   Width="80" MinWidth="80" IsReadOnly='True' 
+                                          Header="Кол-во" Binding="{Binding Count}"/>
+                </gui:SepsDataGrid.Columns>
+            </gui:SepsDataGrid>
+
+            <Border Grid.Row="2" BorderThickness="1,0,1,1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                    <charts:Chart  Style="{StaticResource ChartWithNoGaps}"
+                                   DataContext="{Binding Source={StaticResource StatisticVM}, Path=ConStatTom}"
+                            Name="Tom"  Margin="-1,0,0,-1"
+                            BorderBrush="{DynamicResource TabItem_BorderBrush_Selected}" >
+                        <charts:PieSeries    DependentValueBinding="{Binding Count}"  Name="TomPSeries"
+                            IndependentValueBinding="{Binding Type}"
+                            ItemsSource="{Binding DataTableSignal}">
+                        </charts:PieSeries>
+                    </charts:Chart>
+                </ScrollViewer>
+            </Border>
+            <Border Grid.Row="3" BorderThickness="1,0,1,0">
+                <StackPanel Style="{DynamicResource ButtonPanelTemplate}">
+                    <Button Style="{DynamicResource UpdateButtonStyle}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+    </Grid>
+</UserControl>

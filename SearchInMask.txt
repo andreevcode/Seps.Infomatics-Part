@@ -1,0 +1,79 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchInMasks`(ident varchar(128), logname varchar(128))
+BEGIN
+
+drop temporary table if exists n1;
+CREATE temporary TABLE if not exists n1 
+select  Distinct FK_idSignaltempltech,  identifier,  signal_name_logic FROM sapr_prm.mask 
+
+  where identifier like concat('%',ident,'%') 
+  and signal_name_logic like concat('%',logname,'%') 
+  
+   -- limit 0,300
+  ;
+
+
+drop temporary table if exists n2;
+CREATE temporary TABLE if not exists n2 
+select  Distinct FK_idAllsignal,  identifier,  signal_name_logic FROM sapr_prm.signaltempldiag 
+
+  where identifier like concat('%',ident,'%') 
+  and signal_name_logic like concat('%',logname,'%') 
+   --  limit 0,300
+  ;
+  
+drop temporary table if exists n3;
+CREATE temporary TABLE if not exists n3 
+select  Distinct FK_idAllsignal,  identifier,  signal_name_logic FROM sapr_prm.signalunique 
+
+  where identifier like concat('%',ident,'%') 
+  and signal_name_logic like concat('%',logname,'%') 
+
+  -- limit 0,300
+;
+  
+(select distinct
+       n1.identifier,
+       n1.signal_name_logic,
+       signaltempltech.FK_idallsignal,
+       allsignal.name
+       
+       from n1, signaltempltech, allsignal
+       where n1.FK_idSignaltempltech=signaltempltech.idSignaltempltech 
+          and allsignal.idallsignal=signaltempltech.FK_idallsignal
+          and n1.identifier != "")
+       
+union all
+
+(select distinct
+       n2.identifier,
+       n2.signal_name_logic,
+       n2.FK_idallsignal,
+       allsignal.name
+       
+       from n2, allsignal
+       where   allsignal.idallsignal=n2.FK_idallsignal and n2.identifier != "")
+       
+union all
+
+(select distinct
+       n3.identifier,
+       n3.signal_name_logic,
+       n3.FK_idallsignal,
+       allsignal.name
+       
+       from n3, allsignal
+       where   allsignal.idallsignal=n3.FK_idallsignal and n3.identifier != "") 
+       limit 0,900
+       ;
+
+-- union all 
+-- (SELECT Distinct identifier, signal_name_logic FROM sapr_prm.signaltempldiag)
+-- union all 
+-- (SELECT Distinct  identifier, signal_name_logic FROM sapr_prm.signalunique);
+END

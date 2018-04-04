@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="Seps.Infomatic.Gui.MainTemplateView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:gui="clr-namespace:Seps.Infomatic.Gui" 
+    x:Name="Template" >
+    
+    <UserControl.Resources>
+        <gui:TemplateFunctionVM x:Key="TemplateFunctionVM"/>
+        <gui:TypetemplateVM x:Key="TypetemplateVM"/>
+        <gui:AllsignalVM x:Key="AllsignalVM"/>
+        <gui:FunctionTechVM x:Key="FunctionTechVM"/>       
+    </UserControl.Resources>
+    
+    <Grid x:Name="Grid1" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="200*" MinHeight="200"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="300*" MinHeight="200"/>
+        </Grid.RowDefinitions>
+
+        <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalContentAlignment="Stretch" />
+
+        <Grid Name="Grid3" Grid.Row="0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="300" />
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="*" MinWidth="300" />
+            </Grid.ColumnDefinitions>
+            
+            <GridSplitter  Grid.Column="1" VerticalContentAlignment="Stretch" HorizontalAlignment="Stretch"/>
+
+            <Border Grid.Column="0" Margin="0,0,0,0" BorderThickness="0,1,1,1"
+                        Background="{DynamicResource DictionaryTab_BackgroundBrush}">
+                <gui:TemplateFunctionView DataContext="{Binding Source={StaticResource TemplateFunctionVM}}"
+                      gui:SepsDataGrid.RoutedSelectionChanged="TemplateFunctionView_RoutedSelectionChanged">
+                </gui:TemplateFunctionView>
+            </Border>
+
+            <Border Margin="0,0,0,0" BorderThickness="1,1,0,1" Grid.Column="2" 
+                            Background="{DynamicResource Functions_BackgroundBrush}">
+                     <gui:FunctionTechView DataContext="{Binding Source={StaticResource FunctionTechVM}}"
+                        gui:SepsDataGrid.RoutedSelectionChanged="FunctionTechView_RoutedSelectionChanged">  
+                    </gui:FunctionTechView>
+            </Border>
+        </Grid>
+        
+        <Grid Grid.Row="2" Name="Grid2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="300"/>
+                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="24" MinWidth="24"/>
+            </Grid.ColumnDefinitions>
+
+            <GridSplitter x:Name="GrSp1" Grid.Column="1" VerticalContentAlignment="Stretch" 
+                                            HorizontalAlignment="Stretch" />
+
+            <Border  Grid.Column="0" Margin="0,0,0,0" BorderThickness="0,1,1,0"
+                    Background="{DynamicResource Functions_BackgroundBrush}">
+                <gui:AllsignalView x:Name="AllsignalVM" DataContext="{Binding Source={StaticResource AllsignalVM}}"/>
+            </Border>
+
+            <Border Margin="0,0,0,0" BorderThickness="1,1,0,0" Grid.Column="2" 
+                            Background="{DynamicResource Functions_BackgroundBrush}">
+                <Expander  Margin="-1,-1,0,0" ExpandDirection="Left" IsExpanded="False" x:Name="Expander1" 
+                              Expander.Expanded="Expander1_Expanded"
+                              Expander.Collapsed ="Expander1_Collapsed">
+                    <Expander.Content>
+                        <gui:TypeTemplateView DataContext="{Binding Source={StaticResource TypetemplateVM}}"/>
+                    </Expander.Content>
+                </Expander>
+            </Border>
+        </Grid>
+    </Grid> 
+</UserControl>

@@ -1,0 +1,158 @@
+-- --------------------------------------------------------------------------------
+-- Routine DDL
+-- Note: comments before and after the routine body will not be stored by the server
+-- --------------------------------------------------------------------------------
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `SearchSignals`(sname varchar(128), 
+ident varchar(128), logname varchar(128), stype varchar(45), scontact varchar(128), 
+splace varchar(128))
+BEGIN
+
+drop temporary table if exists n1;
+CREATE temporary TABLE if not exists n1 
+
+select Distinct allsignal.name as namesignal,                        
+                mask.identifier,  
+                mask.signal_name_logic, 
+                typesignal.name as typeof,
+                functiontech.name as contact
+
+FROM mask, signaltempltech, functiontech, allsignal, typesignal
+  where allsignal.name       like concat('%',sname,'%') 
+  and mask.identifier        like concat('%',ident,'%') 
+  and mask.signal_name_logic like concat('%',logname,'%')
+  and functiontech.name      like concat('%',scontact,'%')
+  and mask.FK_idSignaltempltech = signaltempltech.idSignaltempltech 
+  and functiontech.idfunctiontech = signaltempltech.FK_idFunctiontech
+  and signaltempltech.FK_idallsignal=allsignal.idallsignal 
+  and allsignal.FK_idTypesignal=typesignal.idtypesignal
+
+  -- allsignal.name ,
+   group by namesignal
+   limit 0,10000; 
+  
+ alter table n1 add type Varchar(48) after signal_name_logic;
+ alter table n1 add place Varchar(128) after contact;
+ update n1 set type = 'TF';
+ update n1 set place = '';
+--  update n1,union_11, equipment set n1.place = equipment.name 
+--  where n1.
+--  ;
+ 
+
+drop temporary table if exists n2;
+CREATE temporary TABLE if not exists n2 
+
+select  Distinct allsignal.name as namesignal,   
+                 typesignal.name as typeof
+FROM allsignal, typesignal
+where allsignal.name like concat('%',sname,'%') 
+  and allsignal.FK_idTypesignal=typesignal.idtypesignal
+
+limit 0,10000;
+
+alter table n2 add  identifier Varchar(128) after namesignal; 
+alter table n2 add  signal_name_logic Varchar(128) after identifier; 
+alter table n2 add  type Varchar(48) after signal_name_logic; 
+alter table n2 add  contact Varchar(45); 
+alter table n2 add  place Varchar(128);
+
+update n2 set identifier = '' ;
+update n2 set signal_name_logic = '';
+update n2 set type = 'AS' ;
+update n2 set contact = '';
+update n2 set place = '';
+
+
+drop temporary table if exists n3;
+CREATE temporary TABLE if not exists n3 
+
+select Distinct allsignal.name as namesignal,                        
+                signalunique.identifier,  
+                signalunique.signal_name_logic, 
+                typesignal.name as typeof,
+                terminal.name as contact,
+                cubicle.name as place
+                
+    FROM allsignal, signalunique , terminal, cubicle, typesignal
+
+where allsignal.name    like concat('%',sname,'%') 
+  and identifier        like concat('%',ident,'%') 
+  and signal_name_logic like concat('%',logname,'%')
+  and terminal.name     like concat('%',scontact,'%')
+  and cubicle.name      like concat('%',splace,'%')
+  and signalunique.FK_idallsignal=allsignal.idallsignal
+  and signalunique.FK_idterminal = terminal.idterminal 
+  and terminal.FK_idcubicle = cubicle.idcubicle
+  and allsignal.FK_idTypesignal=typesignal.idtypesignal
+  
+  group by namesignal 
+  -- group by allsignal.name, signalunique.identifier, signalunique.signal_name_logic
+  -- group by terminal.name, cubicle.name
+  
+  
+  -- group by if((sname = '' and ident = '' and logname=''), 
+             -- (allsignal.name, signalunique.identifier, signalunique.signal_name_logic),(allsignal.name))
+   
+  limit 0,10000;
+
+alter table n3 add  type Varchar(48) after signal_name_logic; 
+update n3 set type = 'US' ;
+  
+ 
+drop temporary table if exists n4;
+CREATE temporary TABLE if not exists n4 
+
+select Distinct allsignal.name as namesignal,                        
+                signaltempldiag.identifier,  
+                signaltempldiag.signal_name_logic, 
+                typesignal.name as typeof,
+                model.name as contact
+
+FROM model, signaltempldiag, allsignal, typesignal
+  where allsignal.name                  like concat('%',sname,'%') 
+  and signaltempldiag.identifier        like concat('%',ident,'%') 
+  and signaltempldiag.signal_name_logic like concat('%',logname,'%')
+  and model.name                        like concat('%',scontact,'%')
+  and signaltempldiag.FK_idModel = model.idModel 
+  and signaltempldiag.FK_idallsignal=allsignal.idallsignal 
+  and allsignal.FK_idTypesignal=typesignal.idtypesignal
+
+  -- allsignal.name ,
+  group by namesignal
+   limit 0,10000; 
+  
+ alter table n4 add type Varchar(48) after signal_name_logic;
+ alter table n4 add place Varchar(128) after contact;
+ update n4 set type = 'DS';
+ update n4 set place = '';
+--  update n1,union_11, equipment set n1.place = equipment.name 
+--  where n1.
+--  ;
+
+ 
+(select distinct * from n1 
+  where place             like concat('%',splace,'%') 
+  and   type              like concat('%',stype,'%')) union all 
+(select distinct * from n2   
+  where identifier        like concat('%',ident,'%') 
+  and   signal_name_logic like concat('%',logname,'%')
+  and   contact            like concat('%',scontact,'%')
+  and   place             like concat('%',splace,'%')
+  and   type              like concat('%',stype,'%')) union all 
+(select distinct * from n3 
+  where   type            like concat('%',stype,'%')) union all
+
+(select distinct * from n4 
+  where place             like concat('%',splace,'%') 
+  and   type              like concat('%',stype,'%')) ;
+  
+  
+-- select distinct * from n2   
+--   where identifier        like concat('%',ident,'%') 
+--   and   signal_name_logic like concat('%',logname,'%')
+--   and   contact            like concat('%',scontact,'%')
+--   and   place             like concat('%',splace,'%')  ;
+-- 
+END
